@@ -1,26 +1,25 @@
 import discord
 
-# https://www.iconfinder.com/iconsets/small-n-flat
 message_types = {
     None: ("", "{c}", "", 0x36393e),
     "info": ("Info", "{c}",
              "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678110-sign-info-512.png", 0x478fce),
     "wait_for": ("Waiting for response", "{c}", "https://cdn4.iconfinder.com/data/icons/small-n-flat/24/bubbles-alt2-512.png", 0x478fce),
-    "success": ("Voila!", "{c}", "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678134-sign-check-512.png",
+    "success": ("Success!", "{c}", "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678134-sign-check-512.png",
                 0x48ce6c),
     "warning": ("Warning", "{c}",
                 "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678136-shield-warning-512.png",
                 0xefbc2f),
     "working": ("Please wait ...", "{c}",
-                "https://images-ext-1.discordapp.net/external/AzWR8HxPJ4t4rPA1DagxJkZsOCOMp4OTgwxL3QAjF4U/https/cdn.discordapp.com/emojis/424900448663633920.gif",
+                "https://cdn.discordapp.com/attachments/481121629926064129/516295519920848919/amiloader.gif",
                 0x36393e),
-    "error": ("Error", "{c}" + f"\n\n[Support](https://discord.club/discord)",
+    "error": ("Error", "{c}" + f"\n\n[Support](https://discord.gg/SpZPkPf)",
               "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678069-sign-error-512.png",
               0xc64935),
     "perm_error": ("Insufficient Permission", "{c}",
                    "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678069-sign-error-512.png",
                    0xc64935),
-    "unex_error": ("Error", "**Error Code:**\n```{c}```" + f"\n\n[Support](https://discord.club/discord)",
+    "unex_error": ("Error", "**Error Code:**\n```{c}```" + f"\n\n[Support](https://discord.gg/SpZPkPf)",
                    "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678069-sign-error-512.png", 0xc64935)
 }
 

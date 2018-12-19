@@ -4,9 +4,9 @@ from discord.ext import commands as cmd
 
 rdb.set_loop_type("asyncio")
 
-host, port, database = "localhost", 28015, "xenon"
+host, port, database = "localhost", 28015, "ami_backups"
 table_setup = {
-    "xenon": {
+    "ami_backups": {
         "backups": {},
         "templates": {},
         "intervals": {},

@@ -1,15 +1,13 @@
 import asyncio
 
 from utils import database
-from bot import Xenon
+from bot import AmiBackup
 
 
 async def prepare_bot(loop):
     await database.setup()
-    bot = Xenon(loop=loop)
-
+    bot = AmiBackup(loop=loop)
     return bot
-
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

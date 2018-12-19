@@ -11,19 +11,16 @@ class Templates:
     @cmd.group(aliases=["temp"], invoke_without_command=True)
     async def template(self, ctx):
         """Create & load public templates"""
-        await ctx.invoke(self.bot.get_command("help"), "template")
+        await ctx.invoke(self.bot.get_command("lolhelpislit"), "template")
 
     @template.command(aliases=["c"])
     @cmd.cooldown(1, 30, cmd.BucketType.user)
+    @checks.has_role_on_support_guild("Admin")
     async def create(self, ctx, backup_id, name, *, description):
         """
         Turn a private backup into a PUBLIC template.
-
-
         backup_id   ::      The id of the backup that you want to turn into a template
-
         name        ::      A name for the template
-
         description ::      A description for the template
         """
         name = name.lower().replace(" ", "_")
@@ -70,24 +67,21 @@ class Templates:
 
         template = await ctx.db.table("templates").get(name).run(ctx.db.con)
         embed = self.template_info(ctx, name, template)
-        await self.bot.get_channel(516345778327912448).send(embed=embed)
+        await self.bot.get_channel(515999307308990471).send(embed=embed)
 
         await ctx.send(**ctx.em("Successfully **created template**.\n"
                                 f"You can load the template with `{ctx.prefix}template load {name}`", type="success"))
 
     @template.command(aliases=["unfeature"])
-    @checks.has_role_on_support_guild("Staff")
+    @checks.has_role_on_support_guild("Admin")
     async def feature(self, ctx, *, template_name):
         """
         Feature a template
-
-
-        template_name ::    The name of the template
+         template_name ::    The name of the template
         """
         feature = True
         if ctx.invoked_with == "unfeature":
             feature = False
-
         template_name = template_name.lower().replace(" ", "_")
         template = await ctx.db.table("templates").get(template_name).run(ctx.db.con)
         if template is None:
@@ -95,17 +89,15 @@ class Templates:
         await ctx.db.table("templates").get(template_name).update({"featured": feature}).run(ctx.db.con)
 
         embed = self.template_info(ctx, template_name, template)
-        await self.bot.get_channel(464837529267601408).send(embed=embed)
+        await self.bot.get_channel(515999307308990471).send(embed=embed)
 
         await ctx.send(**ctx.em(f"Successfully **{'un' if not feature else ''}featured template**.", type="success"))
 
     @template.command(aliases=["del", "rm", "remove"])
-    @checks.has_role_on_support_guild("Staff")
+    @checks.has_role_on_support_guild("Admin")
     async def delete(self, ctx, *, template_name):
         """
         Delete a template created by you
-
-
         template_name ::    The name of the template
         """
         template_name = template_name.lower().replace(" ", "_")
@@ -121,12 +113,10 @@ class Templates:
     @cmd.has_permissions(administrator=True)
     @cmd.bot_has_permissions(administrator=True)
     @checks.bot_has_managed_top_role()
-    @cmd.cooldown(1, 5 * 60, cmd.BucketType.guild)
+    @cmd.cooldown(1, 10 * 60, cmd.BucketType.guild)
     async def load(self, ctx, *, template_name):
         """
         Load a template
-
-
         template_name ::    The name of the template
         """
         template_name = template_name.lower().replace(" ", "_")
@@ -162,8 +152,6 @@ class Templates:
     async def info(self, ctx, *, template_name):
         """
         Get information about a template
-
-
         template_name ::    The name of the template
         """
         template_name = template_name.lower().replace(" ", "_")
@@ -188,7 +176,7 @@ class Templates:
     @template.command(aliases=["ls"])
     async def list(self, ctx):
         await ctx.send(**ctx.em(
-            "You can find a **list of templates** in <#516345778327912448> and <#464837529267601408> on the [support server](https://discord.club/discord).",
+            "You can find a **list of templates** in the [support server](https://amidiscord.me/support).",
             type="info"
         ))
 

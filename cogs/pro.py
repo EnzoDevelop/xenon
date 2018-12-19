@@ -19,13 +19,12 @@ class Pro:
             "You can find **more information** about the subscription and a **detailed list of perks** [here](https://docs.discord.club/xenon/how-to/xenon-pro).",
             type="info"
         ))
-        await ctx.invoke(self.bot.get_command("help"), "Pro")
+        await ctx.invoke(self.bot.get_command("lolhelpislit"), "Pro")
 
     @cmd.command(aliases=["cp"])
     @cmd.guild_only()
     @cmd.has_permissions(administrator=True)
-    @cmd.bot_has_permissions(administrator=True)
-    @checks.is_pro()
+    @cmd.bot_has_permissions(administrator=True
     @checks.bot_has_managed_top_role()
     @cmd.cooldown(1, 5 * 60, cmd.BucketType.guild)
     async def copy(self, ctx, guild_id: int, chatlog: int = backups.max_chatlog):
@@ -82,7 +81,6 @@ class Pro:
     @cmd.guild_only()
     @cmd.has_permissions(administrator=True)
     @cmd.bot_has_permissions(administrator=True)
-    @checks.is_pro()
     async def bans(self, ctx, guild_id: int):
         """
         Copy all bans from another guild to this guild and keep them up to date
@@ -157,7 +155,6 @@ class Pro:
     @cmd.guild_only()
     @cmd.has_permissions(administrator=True)
     @cmd.bot_has_permissions(administrator=True)
-    @checks.is_pro()
     async def messages(self, ctx, channel_id: int):
         """
         Synchronize all new messages from another channel to this channel

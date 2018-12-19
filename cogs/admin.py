@@ -15,7 +15,7 @@ class Admin:
         self._last_result = None
 
     @cmd.command(aliases=["su"], hidden=True)
-    @cmd.is_owner()
+    @checks.has_role_on_support_guild("Admin")
     async def sudo(self, ctx, member: discord.Member, *, msg):
         """
         Execute a command in place of another user
@@ -34,7 +34,7 @@ class Admin:
         await self.bot.process_commands(message)
 
     @cmd.command(aliases=["rl"], hidden=True)
-    @cmd.is_owner()
+    @checks.has_role_on_support_guild("Admin")
     async def reload(self, ctx, cog):
         """
         Reload a cog
@@ -73,7 +73,7 @@ class Admin:
         await self.bot.close()
 
     @cmd.command(name="exec", hidden=True)
-    @cmd.is_owner()
+    @checks.has_role_on_support_guild("Admin")
     async def _exec(self, ctx, *, body: str):
         """
         Executes something, uses exec not eval -> returns None
@@ -134,7 +134,7 @@ class Admin:
                 await ctx.send(f'```py\n{value}{ret}\n```')
 
     @cmd.command(hidden=True)
-    @cmd.is_owner()
+    @checks.has_role_on_support_guild("Admin")
     async def eval(self, ctx, *, code: str):
         to_eval = code.replace("await ", "")
         try:

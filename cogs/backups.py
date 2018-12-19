@@ -1,4 +1,5 @@
 from discord.ext import commands as cmd
+import discord
 from discord_backups import BackupSaver, BackupLoader, BackupInfo
 import string
 import random
@@ -10,7 +11,7 @@ import pytz
 from utils import checks, helpers
 
 
-max_chatlog = 20
+max_chatlog = 45
 max_reinvite = 100
 
 
@@ -26,7 +27,7 @@ class Backups:
     @cmd.group(aliases=["bu"], invoke_without_command=True)
     async def backup(self, ctx):
         """Create & load backups of your servers"""
-        await ctx.invoke(self.bot.get_command("help"), "backup")
+        await ctx.invoke(self.bot.get_command("lolhelpislit"), "backup")
 
     def random_id(self):
         return "".join([random.choice(string.digits + string.ascii_lowercase) for i in range(16)])
@@ -36,12 +37,12 @@ class Backups:
     @cmd.has_permissions(administrator=True)
     @cmd.bot_has_permissions(administrator=True)
     @cmd.cooldown(1, 1 * 60, cmd.BucketType.guild)
-    async def create(self, ctx, chatlog: int = 20):
+    async def create(self, ctx, chatlog: int = 45):
         """
         Create a backup
 
 
-        chatlog ::      The count of messages to save per channel (max. 20) (default 20)
+        chatlog ::      The count of messages to save per channel (max. 45) (default 45)
         """
         chatlog = chatlog if chatlog < max_chatlog and chatlog >= 0 else max_chatlog
         status = await ctx.send(**ctx.em("**Creating backup** ... Please wait", type="working"))
@@ -51,6 +52,7 @@ class Backups:
         await ctx.db.table("backups").insert({
             "id": id,
             "creator": str(ctx.author.id),
+            "guild_id": str(ctx.guild.id),
             "timestamp": datetime.now(pytz.utc),
             "backup": backup
         }).run(ctx.db.con)
@@ -59,17 +61,18 @@ class Backups:
         try:
             if ctx.author.is_on_mobile():
                 await ctx.author.send(f"{ctx.prefix}backup load {id}")
-
             else:
                 embed = ctx.em(
                     f"Created backup of **{ctx.guild.name}** with the Backup id `{id}`\n", type="info")["embed"]
                 embed.add_field(name="Usage",
                                 value=f"```{ctx.prefix}backup load {id}```\n```{ctx.prefix}backup info {id}```")
                 await ctx.author.send(embed=embed)
-
         except:
-            traceback.print_exc()
-            await status.edit(**ctx.em("I was **unable to send you the backup-id**. Please make sure you have dm's enabled.", type="error"))
+            embed = ctx.em(
+                f"Created backup of **{ctx.guild.name}** with the Backup id `{id}`\n", type="info")["embed"]
+            embed.add_field(name="Usage",
+                            value=f"```{ctx.prefix}backup load {id}```\n```{ctx.prefix}backup info {id}```")
+            await ctx.channel.send(embed=embed)
 
     @backup.command(aliases=["l"])
     @cmd.guild_only()
@@ -77,21 +80,26 @@ class Backups:
     @cmd.bot_has_permissions(administrator=True)
     @checks.bot_has_managed_top_role()
     @cmd.cooldown(1, 5 * 60, cmd.BucketType.guild)
-    async def load(self, ctx, backup_id, chatlog: int = 20, *load_options):
+    async def load(self, ctx, backup_id, chatlog: int = 45, *load_options):
         """
         Load a backup
 
-
         backup_id ::    The id of the backup
 
-        chatlog   ::    The count of messages to load per channel (max. 20) (default 20)
+        chatlog   ::    The count of messages to load per channel (max. 45) (default 45)
         """
         chatlog = chatlog if chatlog < max_chatlog and chatlog >= 0 else max_chatlog
+        if backup_id == "latest":
+            backup_id = await ctx.db.table("backups").orderBy("timestamp").filter({
+                "creator": str(ctx.author.id),
+                "guild_id": str(ctx.guild.id)
+            }).limit(1).run(ctx.db.con)["id"]
+        print(backup_id)
         backup = await ctx.db.table("backups").get(backup_id).run(ctx.db.con)
         if backup is None or backup.get("creator") != str(ctx.author.id):
-            raise cmd.CommandError(f"You have **no backup** with the id `{backup_id}`.")
+            raise cmd.CommandError(f"You have **no backup** with the id: `{backup_id}`.")
 
-        warning = await ctx.send(**ctx.em("Are you sure you want to load this backup? **All channels and roles will get replaced!**", type="warning"))
+        warning = await ctx.send(**ctx.em("Are you sure you want to load this backup? **All channels and roles will get replaced!** **Note:** *While the backup is in progress please wait patiently as it may take a while.*", type="warning"))
         await warning.add_reaction("✅")
         await warning.add_reaction("❌")
         try:
@@ -238,6 +246,31 @@ class Backups:
         embed.add_field(name="Roles", value=handler.roles(), inline=True)
         await ctx.send(embed=embed)
 
+    @backup.command(aliases=["ls"])
+    @cmd.guild_only()
+    async def list(self, ctx):
+        """
+        Get a list of recent backups
+        """
+        backups = await ctx.db.table("backups").filter({
+          "creator": str(ctx.author.id),
+          "guild_id": str(ctx.guild.id)
+        }).limit(10).run(ctx.db.con)
+        embed = ctx.em("")["embed"]
+        embed.title = "Your Most Recent Backups"
+        description = ""
+        while (await backups.fetch_next()):
+            backup = await backups.next()
+            handler = BackupInfo(self.bot, backup["backup"])
+            description += ('**' + handler.name + '** (`' + backup["id"] +
+                            '`) **Created at: ** `' +
+                            helpers.datetime_to_string(backup["timestamp"]) +
+                            '`\n')
+        if description == "":
+            raise cmd.CommandError("You've not made any backups of this server!")
+        embed.description = description
+        await ctx.send(embed=embed)
+
     @backup.command(aliases=["iv", "auto"])
     @cmd.cooldown(1, 1, cmd.BucketType.guild)
     @cmd.has_permissions(administrator=True)
@@ -247,8 +280,8 @@ class Backups:
         Setup automated backups
 
         interval::     The time between every backup or "off".
-                        Supported units: minutes(m), hours(h), days(d), weeks(w), month(m)
-                        Example: 1d 12h
+                       Supported units: minutes(m), hours(h), days(d), weeks(w), month(m)
+                       Example: 1d 12h
         """
         if len(interval) == 0:
             interval = await ctx.db.table("intervals").get(str(ctx.guild.id)).run(ctx.db.con)
@@ -320,6 +353,7 @@ class Backups:
                     id = self.random_id()
                     await db.table("backups").insert({
                         "id": id,
+                        "guild_id": guild.id,
                         "creator": str(guild.owner.id),
                         "timestamp": datetime.now(pytz.utc),
                         "backup": backup

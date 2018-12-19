@@ -1,5 +1,8 @@
 # Xenon
 
+## Information
+This is a modified version of xenon for use with [Ami](https://amidiscord.me)
+
 ## Requirements
 
 You need Python 3.6.x to run the bot. >=3.7 and <=3.5 are not supported!  
