@@ -10,30 +10,16 @@ class Pro:
     def __init__(self, bot):
         self.bot = bot
 
-    @cmd.command()
-    async def pro(self, ctx):
-        """Shows information about Xenon Pro"""
-        await ctx.send(**ctx.em(
-            "**Xenon Pro** is the **paid version** of xenon. It includes some **exclusive features**.\n"
-            "You can buy it [here](https://donatebot.io/checkout/410488579140354049).\n\n"
-            "You can find **more information** about the subscription and a **detailed list of perks** [here](https://docs.discord.club/xenon/how-to/xenon-pro).",
-            type="info"
-        ))
-        await ctx.invoke(self.bot.get_command("lolhelpislit"), "Pro")
-
     @cmd.command(aliases=["cp"])
     @cmd.guild_only()
     @cmd.has_permissions(administrator=True)
-    @cmd.bot_has_permissions(administrator=True
+    @cmd.bot_has_permissions(administrator=True)
     @checks.bot_has_managed_top_role()
     @cmd.cooldown(1, 5 * 60, cmd.BucketType.guild)
     async def copy(self, ctx, guild_id: int, chatlog: int = backups.max_chatlog):
         """
         Copy all channels and roles from another guild to this guild
-
-
         guild_id ::     The id of the guild
-
         chatlog  ::     The count of messages to load per channel (max. 20) (default 20)
         """
         chatlog = chatlog if chatlog < backups.max_chatlog and chatlog >= 0 else backups.max_chatlog
@@ -72,10 +58,9 @@ class Pro:
     async def sync(self, ctx):
         """
         Sync messages, channel & bans from one to another server
-
         The sync command works only in one direction, but you can run the command in both guilds / channel to sync it in both directions.
         """
-        await ctx.invoke(self.bot.get_command("help"), "sync")
+        await ctx.invoke(self.bot.get_command("lolhelpislit"), "sync")
 
     @sync.command()
     @cmd.guild_only()
@@ -84,8 +69,6 @@ class Pro:
     async def bans(self, ctx, guild_id: int):
         """
         Copy all bans from another guild to this guild and keep them up to date
-
-
         guild_id ::     The id of the guild
         """
         guild = self.bot.get_guild(guild_id)
@@ -127,12 +110,12 @@ class Pro:
         syncs = await self.bot.db.table("syncs").get_all(str(guild.id), index="origin").filter(lambda s: s["types"].contains("bans")).run(self.bot.db.con)
         while await syncs.fetch_next():
             sync = await syncs.next()
-            target = self.bot.get_guild(sync.get("target"))
+            target = self.bot.get_guild(int(sync["target"]))
             if target is None:
                 continue
 
             try:
-                await target.ban(user, reason=f"Banned on {sync.get('origin')}")
+                await target.ban(user, reason=f"Banned on `{guild.name}`")
 
             except:
                 pass
@@ -146,7 +129,7 @@ class Pro:
                 continue
 
             try:
-                await target.unban(user, reason=f"Unbanned on {sync['origin']}")
+                await target.unban(user, reason=f"Unbanned on `{guild.name}`")
 
             except:
                 pass
@@ -158,8 +141,6 @@ class Pro:
     async def messages(self, ctx, channel_id: int):
         """
         Synchronize all new messages from another channel to this channel
-
-
         channel_id ::     The id of the channel
         """
         channel = self.bot.get_channel(channel_id)
@@ -207,20 +188,23 @@ class Pro:
             if target is None:
                 continue
 
-            webhooks = await target.webhooks()
-            if len(webhooks) == 0:
-                webhook = await target.create_webhook(name="message sync")
+            try:
+                webhooks = await target.webhooks()
+                if len(webhooks) == 0:
+                    webhook = await target.create_webhook(name="message sync")
 
-            else:
-                webhook = webhooks[0]
+                else:
+                    webhook = webhooks[0]
 
-            embeds = msg.embeds
-            for attachment in msg.attachments:
-                embed = discord.Embed()
-                embed.set_image(url=attachment.url)
-                embeds.append(embed)
+                embeds = msg.embeds
+                for attachment in msg.attachments:
+                    embed = discord.Embed()
+                    embed.set_image(url=attachment.url)
+                    embeds.append(embed)
 
-            wait_for.append(await webhook.send(username=msg.author.name, avatar_url=msg.author.avatar_url, content=helpers.clean_content(msg.content), embeds=embeds))
+                wait_for.append(await webhook.send(username=msg.author.name, avatar_url=msg.author.avatar_url, content=helpers.clean_content(msg.content), embeds=embeds))
+            except:
+                pass
 
 
 def setup(bot):
