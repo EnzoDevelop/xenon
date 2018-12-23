@@ -11,7 +11,7 @@ class Templates:
     @cmd.group(aliases=["temp"], invoke_without_command=True)
     async def template(self, ctx):
         """Create & load public templates"""
-        await ctx.invoke(self.bot.get_command("lolhelpislit"), "template")
+        await ctx.invoke(self.bot.get_command("chelp"), "template")
 
     @template.command(aliases=["c"])
     @cmd.cooldown(1, 30, cmd.BucketType.user)

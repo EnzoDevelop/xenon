@@ -70,7 +70,7 @@ class Backups:
     @cmd.group(aliases=["bu"], invoke_without_command=True)
     async def backup(self, ctx):
         """Create & load backups of your servers"""
-        await ctx.invoke(self.bot.get_command("lolhelpislit"), "backup")
+        await ctx.invoke(self.bot.get_command("chelp"), "backup")
 
     def random_id(self):
         return "".join([random.choice(string.digits + string.ascii_lowercase) for i in range(16)])

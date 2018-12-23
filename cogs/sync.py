@@ -12,7 +12,7 @@ class Sync:
         Sync messages, channel & bans from one to another server
         The sync command works only in one direction, but you can run the command in both guilds / channel to sync it in both directions.
         """
-        await ctx.invoke(self.bot.get_command("lolhelpislit"), "sync")
+        await ctx.invoke(self.bot.get_command("chelp"), "sync")
 
     @sync.command()
     @cmd.guild_only()
