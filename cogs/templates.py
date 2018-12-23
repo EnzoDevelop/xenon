@@ -113,7 +113,7 @@ class Templates:
     @cmd.has_permissions(administrator=True)
     @cmd.bot_has_permissions(administrator=True)
     @checks.bot_has_managed_top_role()
-    @cmd.cooldown(1, 10 * 60, cmd.BucketType.guild)
+    @cmd.cooldown(1, 5 * 60, cmd.BucketType.guild)
     async def load(self, ctx, *, template_name):
         """
         Load a template
