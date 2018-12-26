@@ -7,11 +7,12 @@ shard_ids = None  # ~ Optional
 prefix = "."
 
 extensions = [
-    "cogs.help",
     "cogs.admin",
     "cogs.backups",
     "cogs.blacklist",
     "cogs.errors",
+    "cogs.help",
+    "cogs.sync",
     "cogs.templates"
 ]
 
