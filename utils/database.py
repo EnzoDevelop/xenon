@@ -1,6 +1,5 @@
 import rethinkdb as rdb
 from discord.ext import commands as cmd
-import time
 
 
 rdb.set_loop_type("asyncio")
@@ -31,6 +30,7 @@ async def setup():
 
                 if len(data) >= 0:
                     await db.table(table_name).insert(data).run(rdb.con)
+    # UNCOMMENT THESE LINES IF YOU RECEIVE ERRORS RELATED TO 'INDEX NOT EXISTING'
     # await rdb.table('backups').index_create('guild_id').run(rdb.con)
     # await rdb.table('syncs').index_create('origin').run(rdb.con)
 
