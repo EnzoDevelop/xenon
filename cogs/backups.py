@@ -295,15 +295,14 @@ class Backups:
         """
         Get a list of recent backups
         """
-        backups = await ctx.db.table("backups").order_by("time_millis").filter({
-          "creator": str(ctx.author.id),
-          "guild_id": str(ctx.guild.id)
+        backups = await ctx.db.table("backups").get_all(str(ctx.guild.id), index='guild_id').order_by(ctx.rdb.desc("time_millis")).filter({
+          "creator": str(ctx.author.id)
         }).limit(10).run(ctx.db.con)
         embed = ctx.em("")["embed"]
         embed.title = "Your Most Recent Backups"
         description = ""
-        while (await backups.fetch_next()):
-            backup = await backups.next()
+        for backup in backups:
+            print(backup['time_millis'])
             handler = BackupInfo(self.bot, backup["backup"])
             description += ('**' + handler.name + '** (`' + backup["id"] +
                             '`) **Created at: ** `' +

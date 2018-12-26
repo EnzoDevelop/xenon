@@ -18,11 +18,9 @@ table_setup = {
 
 
 async def convert_all_timestamps_to_millis():
-    backups = await rdb.table("backups").run(rdb.con)
+    backups = await rdb.table("backups").has_fields('timestamp').run(rdb.con)
     while (await backups.fetch_next()):
         backup = await backups.next()
-        if backup is None or backup['timestamp'] is None:
-            continue
         t = backup['timestamp']
         timestamp_millis = int(round((time.mktime(t.timetuple()) + t.microsecond / 1E6) * 1000))
         await rdb.table('backups').get(backup['id']).update({"time_millis": timestamp_millis}).run(rdb.con)
@@ -42,6 +40,7 @@ async def setup():
 
                 if len(data) >= 0:
                     await db.table(table_name).insert(data).run(rdb.con)
+    # await rdb.table('backups').index_create('guild_id').run(rdb.con)
     # await rdb.table('syncs').index_create('origin').run(rdb.con)
     # await convert_all_timestamps_to_millis()
 
