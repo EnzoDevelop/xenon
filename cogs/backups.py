@@ -311,6 +311,7 @@ class Backups:
         if description == "":
             raise cmd.CommandError("You've not made any backups of this server!")
         embed.description = description
+        embed.footer = "All times are in UTC"
         await ctx.send(embed=embed)
 
     @backup.command(aliases=["iv", "auto"])
