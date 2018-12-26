@@ -54,8 +54,7 @@ class Blacklist:
                 "state": True,
                 "reason": reason,
                 "admin": str(ctx.author.id),
-                "timestamp": datetime.now(pytz.utc),
-                "time_millis": helpers.current_time_millis()
+                "timestamp": datetime.now(pytz.utc)
             }
         }, conflict="update").run(ctx.db.con)
         await ctx.send(**ctx.em(f"Successfully **blacklisted** the user **{str(user)}** (<@{user.id}>).", type="success"))

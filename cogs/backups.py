@@ -97,7 +97,6 @@ class Backups:
             "creator": str(ctx.author.id),
             "guild_id": str(ctx.guild.id),
             "timestamp": datetime.now(pytz.utc),
-            "time_millis": helpers.current_time_millis(),
             "backup": backup
         }).run(ctx.db.con)
 
@@ -134,9 +133,8 @@ class Backups:
         """
         chatlog = chatlog if chatlog < max_chatlog and chatlog >= 0 else max_chatlog
         if backup_id == "latest":
-            backup_id = ((await ctx.db.table("backups").order_by("time_millis").filter({
-                "creator": str(ctx.author.id),
-                "guild_id": str(ctx.guild.id)
+            backup_id = ((await ctx.db.table("backups").get_all(str(ctx.guild.id), key='guild_id').filter({
+                "creator": str(ctx.author.id)
             }).limit(1).run(ctx.db.con))[0])['id']
             print(backup_id)
         backup = await ctx.db.table("backups").get(backup_id).run(ctx.db.con)
@@ -295,14 +293,13 @@ class Backups:
         """
         Get a list of recent backups
         """
-        backups = await ctx.db.table("backups").get_all(str(ctx.guild.id), index='guild_id').order_by(ctx.rdb.desc("time_millis")).filter({
+        backups = await ctx.db.table("backups").get_all(str(ctx.guild.id), index='guild_id').order_by(ctx.db.desc('timestamp')).filter({
           "creator": str(ctx.author.id)
         }).limit(10).run(ctx.db.con)
         embed = ctx.em("")["embed"]
-        embed.title = "Your Most Recent Backups"
+        embed.title = "Your most recent backups for this guild"
         description = ""
         for backup in backups:
-            print(backup['time_millis'])
             handler = BackupInfo(self.bot, backup["backup"])
             description += ('**' + handler.name + '** (`' + backup["id"] +
                             '`) **Created at: ** `' +
@@ -311,7 +308,7 @@ class Backups:
         if description == "":
             raise cmd.CommandError("You've not made any backups of this server!")
         embed.description = description
-        embed.footer = "All times are in UTC"
+        embed.set_footer(text="All times are in UTC")
         await ctx.send(embed=embed)
 
     @backup.command(aliases=["iv", "auto"])
@@ -323,7 +320,7 @@ class Backups:
         Setup automated backups
 
         interval::     The time between every backup or "off".
-                       Supported units: minutes(m), hours(h), days(d), weeks(w), month(m)
+                       Supported units: minutes(m), hours(h), days(d), weeks(w)
                        Example: 1d 12h
         """
         if len(interval) == 0:
@@ -391,7 +388,6 @@ class Backups:
             "creator": str(guild.owner.id),
             "guild_id": str(guild_id),
             "timestamp": datetime.now(pytz.utc),
-            "time_millis": helpers.current_time_millis(),
             "backup": backup
         }).run(self.bot.db.con)
 
