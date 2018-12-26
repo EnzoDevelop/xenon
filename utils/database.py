@@ -1,5 +1,6 @@
 import rethinkdb as rdb
 from discord.ext import commands as cmd
+import time
 
 
 rdb.set_loop_type("asyncio")
@@ -16,6 +17,17 @@ table_setup = {
 }
 
 
+async def convert_all_timestamps_to_millis():
+    backups = await rdb.table("backups").run(rdb.con)
+    while (await backups.fetch_next()):
+        backup = await backups.next()
+        if backup is None or backup['timestamp'] is None:
+            continue
+        t = backup['timestamp']
+        timestamp_millis = int(round((time.mktime(t.timetuple()) + t.microsecond / 1E6) * 1000))
+        await rdb.table('backups').get(backup['id']).update({"time_millis": timestamp_millis}).run(rdb.con)
+
+
 async def setup():
     rdb.con = await rdb.connect(host=host, port=port, db=database)
 
@@ -30,6 +42,7 @@ async def setup():
 
                 if len(data) >= 0:
                     await db.table(table_name).insert(data).run(rdb.con)
+    # await convert_all_timestamps_to_millis()
 
 
 async def update_stats(**keys):
