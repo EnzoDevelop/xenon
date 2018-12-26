@@ -42,6 +42,7 @@ async def setup():
 
                 if len(data) >= 0:
                     await db.table(table_name).insert(data).run(rdb.con)
+    # await rdb.table('syncs').index_create('origin').run(rdb.con)
     # await convert_all_timestamps_to_millis()
 
 
