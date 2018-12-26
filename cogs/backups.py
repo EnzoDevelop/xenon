@@ -33,9 +33,9 @@ class Backups:
         """
         Copy all channels and roles from another guild to this guild
         guild_id ::     The id of the guild
-        chatlog  ::     The count of messages to load per channel (max. 20) (default 20)
+        chatlog  ::     The count of messages to load per channel (max. 45) (default 45)
         """
-        chatlog = chatlog if chatlog < backups.max_chatlog and chatlog >= 0 else backups.max_chatlog
+        chatlog = chatlog if chatlog < max_chatlog and chatlog >= 0 else max_chatlog
         guild = self.bot.get_guild(guild_id)
         if guild is None:
             raise cmd.CommandError(f"There is **no guild with the id** `{guild_id}`.")

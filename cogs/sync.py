@@ -1,6 +1,8 @@
 from discord.ext import commands as cmd
 import discord
 
+from utils import helpers
+
 
 class Sync:
     def __init__(self, bot):
